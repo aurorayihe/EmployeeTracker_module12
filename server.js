@@ -218,14 +218,15 @@ function updateEmployeeRole() {
   db.query('SELECT * FROM roles', (err, role) => {
     if (err) throw err;
     const roles = role.map(role => ({ name: role.title, value: role.role_id }));
-    db.query('SELECT first_name, last_name FROM employee', (err, data) => {
+    db.query('SELECT * FROM employee', (err, data) => {
       if (err) throw err;
       const employee = data.map(employee => ({name: employee.first_name + ' ' + employee.last_name, value:employee.employee_id}));
+      console.log(employee);
       inquirer
           .prompt([
             {
               type: 'list',
-              name: 'name',
+              name: 'name1',
               message: `Which employee's role do you want to update?`,
               choices: employee
             },
@@ -237,15 +238,17 @@ function updateEmployeeRole() {
             }
           ])
           .then((answer) => {
-            console.log(answer);
-            const sql = `UPDATE employee SET role_id = ${answer.newRole} WHERE employee_id: ${answer.name.value}`;
-        /*    db.query(sql, (err, data) => {
-              if(err) throw err;
-              console.log("Employee's Role successfully updated!");
-              checkStatus();*/
+            const index = answer.name1 - 1;
+            const sql = `UPDATE employee SET role_id = ${answer.newRole} WHERE employee_id = ${employee[index].value};`;
+            console.log(sql);
+            db.query(sql, (err,data) => {
+              if (err) throw err;
+              console.log(`Employee's role successfully updated!`);
+              checkStatus();
             })
           })
       })
-  };
+  })
+};
 
 checkStatus()
